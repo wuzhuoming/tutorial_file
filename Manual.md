@@ -4,16 +4,16 @@
 
 1. Run the following command 
     ```bash
-    pip install nni && \ 
-    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.2/CUHKPrototypeTuner-1.2-py3-none-any.whl && \ 
-    nnictl package install CUHKPrototypeTuner-1.2-py3-none-any.whl
+    pip install nni && \
+    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
+    nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
     ```
 2. if success install, you should see this output  in the command line
 
     ```bash
-    Processing ./CUHKPrototypeTuner-1.2-py3-none-any.whl
+    Processing ./CUHKPrototypeTuner-1.3-py3-none-any.whl
     Installing collected packages: CUHKPrototypeTuner
-    Successfully installed CUHKPrototypeTuner-1.2
+    Successfully installed CUHKPrototypeTuner-1.3
     CUHKPrototypeTuner installed!
     ```
 
@@ -334,10 +334,4 @@ nnictl resume egchD4qy # egchD4qy is the experiment id provided by the tuner whe
 
 ## Get the trained model
 
-### For ELMO
-
-Each trial's training checkpoint will be store in the path "$save_dir/trial_id", for example, in this case, the checkpoint file of trial "JAVEx" is stored in "./save_output/JAVEx".
-
-### For MASS
-
-Each trial's training checkpoint will be store in the path "$save_dir/trial_id", for example, in this case, the checkpoint file of trial "JAVEx" is stored in "checkpoints/mass/pretraining/JAVEx".
+Each trial's training checkpoint will be store in the path ``{save_dir}/{trial_id}``. For example, the checkpoint file of trial with id ``J6VEx`` for ELMO will be stored in ``{SOME_PATH}/bilm-tf/save_output/J6VEx``.
