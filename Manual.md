@@ -4,8 +4,8 @@
 
 1. Run the following command 
     ```bash
-    pip install nni && \ 
-    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \ 
+    pip install nni && \
+    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
     nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
     ```
 2. if install successfully, you should see this output in the command line
