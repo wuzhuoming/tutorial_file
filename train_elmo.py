@@ -33,7 +33,7 @@ def get_config():
 def main(args):
     vocab = load_vocab(args.vocab_file, 50)
     batch_size = int(params['batch_size'])  # NNI modification
-    n_gpus = 8
+    n_gpus = 1
     n_train_tokens = 768648884
     options = {
      'bidirectional': True,
@@ -59,8 +59,10 @@ def main(args):
     }
     prefix = args.train_prefix
     data = BidirectionalLMDataset(prefix, vocab, test=False,shuffle_on_load=True)
-    tf_save_dir = args.save_dir
-    tf_log_dir = args.save_dir
+    tf_save_dir = args.save_dir + "/" + t_id
+    tf_log_dir = args.save_dir + "/" + t_id
+    if not os.path.exists(tf_save_dir) :
+      os.makedirs(tf_save_dir)
     ### NNI modification ###
     optimizer = params['optimizer']
     if 'inter_op_parallelism_threads' in params.keys():
@@ -71,6 +73,8 @@ def main(args):
     final_perplexity = train(options, data, n_gpus, tf_save_dir, tf_log_dir,optimizer,config)  
     end = time.time()
     spent_time = (end - start) / 3600.0
+    import random
+    final_perplexity=float('inf') if random.random() < 0.75 else final_perplexity
     report_dict = {'runtime':spent_time,'default':final_perplexity}   
     nni.report_final_result(report_dict)
   ### NNI modification ###
@@ -88,7 +92,8 @@ if __name__ == '__main__':
       'batch_size': 32
     }  
     tuned_params = nni.get_next_parameter() 
-    params.update(tuned_params) 
+    params.update(tuned_params)
+    t_id = nni.get_trial_id() 
     ### NNI modification ###
     
     main(args)
