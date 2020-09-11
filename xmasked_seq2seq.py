@@ -138,8 +138,9 @@ class XMassTranslationTask(FairseqTask):
         }  
         tuned_params = nni.get_next_parameter() 
         params.update(tuned_params) 
-        # args.save_interval = 1000
-        # args.max_epoch = 10
+        t_id = nni.get_trial_id()
+        args.save_dir = args.save_dir + "/" + t_id
+        # args.max_epoch = 1
         args.clip_norm = params['clip-norm']
         args.lr = [params['lr']]
         args.attention_dropout = params['attention-dropout']
