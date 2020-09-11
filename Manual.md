@@ -5,15 +5,15 @@
 1. Run the following command 
     ```bash
     pip install nni && \ 
-    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.2/CUHKPrototypeTuner-1.2-py3-none-any.whl && \ 
-    nnictl package install CUHKPrototypeTuner-1.2-py3-none-any.whl
+    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \ 
+    nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
     ```
-2. if success install, you should see this output  in the command line
+2. if install successfully, you should see this output in the command line
 
     ```bash
-    Processing ./CUHKPrototypeTuner-1.2-py3-none-any.whl
+    Processing ./CUHKPrototypeTuner-1.3-py3-none-any.whl
     Installing collected packages: CUHKPrototypeTuner
-    Successfully installed CUHKPrototypeTuner-1.2
+    Successfully installed CUHKPrototypeTuner-1.3
     CUHKPrototypeTuner installed!
     ```
 
