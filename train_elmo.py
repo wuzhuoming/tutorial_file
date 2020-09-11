@@ -33,7 +33,7 @@ def get_config():
 def main(args):
     vocab = load_vocab(args.vocab_file, 50)
     batch_size = int(params['batch_size'])  # NNI modification
-    n_gpus = 1
+    n_gpus = 8
     n_train_tokens = 768648884
     options = {
      'bidirectional': True,
