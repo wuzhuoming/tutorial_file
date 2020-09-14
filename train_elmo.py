@@ -90,8 +90,19 @@ if __name__ == '__main__':
     ### NNI modification ###
     params = {
       'epoch':1,
-      'batch_size': 32
-    }  
+      'batch_size': 32,
+      'optimizer':'Adam',
+      'inter_op_parallelism_threads':1,
+      'intra_op_parallelism_threads':2,
+      'infer_shapes':0,
+      'place_pruned_graph':0,
+      'enable_bfloat16_sendrecv':0,
+      'do_common_subexpression_elimination':0,
+      'max_folded_constant':2,
+      'do_function_inlining':0,
+      'global_jit_level':1,
+      'tf_gpu_thread_mode':"global"
+    }
     tuned_params = nni.get_next_parameter() 
     params.update(tuned_params)
     t_id = nni.get_trial_id() 
