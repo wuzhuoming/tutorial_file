@@ -33,7 +33,10 @@ def get_config():
 def main(args):
     vocab = load_vocab(args.vocab_file, 50)
     batch_size = int(params['batch_size'])  # NNI modification
-    n_gpus = 1
+    if "CUDA_VISIBLE_DEVICES" in os.environ:
+      n_gpus = len(os.environ["CUDA_VISIBLE_DEVICES"].split(','))
+    else:
+      n_gpus = 1
     n_train_tokens = 768648884
     options = {
      'bidirectional': True,

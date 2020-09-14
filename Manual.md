@@ -3,95 +3,97 @@
 ## Install CUHKPrototypeTuner
 
 1. Run the following command 
-    ```bash
-    pip install nni && \
-    wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
-    nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
-    ```
+
+   ```bash
+   pip install nni && \
+   wget https://github.com/vincentcheny/hpo-training/releases/download/v1.3/CUHKPrototypeTuner-1.3-py3-none-any.whl && \
+   nnictl package install CUHKPrototypeTuner-1.3-py3-none-any.whl
+   ```
+
 2. if success install, you should see this output  in the command line
 
-    ```bash
-    Processing ./CUHKPrototypeTuner-1.3-py3-none-any.whl
-    Installing collected packages: CUHKPrototypeTuner
-    Successfully installed CUHKPrototypeTuner-1.3
-    CUHKPrototypeTuner installed!
-    ```
+   ```bash
+   Processing ./CUHKPrototypeTuner-1.3-py3-none-any.whl
+   Installing collected packages: CUHKPrototypeTuner
+   Successfully installed CUHKPrototypeTuner-1.3
+   CUHKPrototypeTuner installed!
+   ```
 
 ### For ELMO 
+
 1. Clone the source code of ELMO from git 
-    ```bash
-    git clone https://github.com/allenai/bilm-tf.git
-    ```
 
-1. Go to the working dir
-    ```bash
-    cd bilm-tf
-    ```
+   ```bash
+   git clone https://github.com/allenai/bilm-tf.git
+   ```
+
+2. Go to the working directory
+
+   ```bash
+   cd bilm-tf
+   ```
+
+3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
+
+   ```bash
+   cat << EOF > search_space.json
+   {
+       "epoch":{"_type": "uniform", "_value": [5, 50]},
+       "batch_size":{"_type": "uniform", "_value": [64, 512]},
+       "optimizer":{"_type":"choice","_value":["Adag","Adam","Rmsp"]},
+       
+       "inter_op_parallelism_threads":{"_type":"choice","_value":[1,2,3,4]},
+       "intra_op_parallelism_threads":{"_type":"choice","_value":[2,4,6,8,10,12]},
+       "infer_shapes":{"_type":"choice","_value":[0,1]},
+       "place_pruned_graph":{"_type":"choice","_value":[0,1]},
+       "enable_bfloat16_sendrecv":{"_type":"choice","_value":[0,1]},
+       "do_common_subexpression_elimination":{"_type":"choice","_value":[0,1]},
+       "max_folded_constant":{"_type":"choice","_value":[2,4,6,8,10]},
+       "do_function_inlining":{"_type":"choice","_value":[0,1]},
+       "global_jit_level":{"_type":"choice","_value":[0,1,2]},
+       "tf_gpu_thread_mode":{"_type":"choice","_value":["global", "gpu_private", "gpu_shared"]}
+   }
+   EOF
+   ```
+
+4. Create file  ``config.yml`` with following content. Execute:
+   ```bash
+   cat << EOF > config.yml
+   authorName: lscm
+   experimentName: elmo
+   trialConcurrency: 1
    
-2. Create file  "search_space.json" to define the search space of hyperparmaeters and hardware parameters. Execute: 
-    ```bash
-    cat << EOF > search_space.json
-    {
-        "epoch":{"_type": "uniform", "_value": [5, 50]},
-        "batch_size":{"_type": "uniform", "_value": [64, 512]},
-        "optimizer":{"_type":"choice","_value":["Adag","Adam","Rmsp"]},
-        
-        "inter_op_parallelism_threads":{"_type":"choice","_value":[1,2,3,4]},
-        "intra_op_parallelism_threads":{"_type":"choice","_value":[2,4,6,8,10,12]},
-        "infer_shapes":{"_type":"choice","_value":[0,1]},
-        "place_pruned_graph":{"_type":"choice","_value":[0,1]},
-        "enable_bfloat16_sendrecv":{"_type":"choice","_value":[0,1]},
-        "do_common_subexpression_elimination":{"_type":"choice","_value":[0,1]},
-        "max_folded_constant":{"_type":"choice","_value":[2,4,6,8,10]},
-        "do_function_inlining":{"_type":"choice","_value":[0,1]},
-        "global_jit_level":{"_type":"choice","_value":[0,1,2]},
-        "tf_gpu_thread_mode":{"_type":"choice","_value":["global", "gpu_private", "gpu_shared"]}
-    }
-    EOF
-    ```
+   # Specify the maximum runing time, we specify 1 week here
+   maxExecDuration: 40h 
+   maxTrialNum: 9999
+   trainingServicePlatform: local
+   searchSpacePath: search_space.json
+   useAnnotation: false
+   tuner:
+     builtinTunerName: CUHKPrototypeTuner
+   trial:
+     command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./output_model
+     codeDir: .
+   EOF
+   ```
+   
+5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
+```bash
+    wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/training.py -O bilm/training.py && 
+    wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elmo.py -O bin/train_elmo.py 
+```
 
-3. Create file  "config.yml" with following content. Execute:
-    ```bash
-    cat << EOF > config.yml
-    authorName: lscm
-    experimentName: elmo
-    trialConcurrency: 1
-    
-    # Specify the maximum runing time, we specify 1 week here
-    maxExecDuration: 40h 
-    maxTrialNum: 9999
-    trainingServicePlatform: local
-    searchSpacePath: search_space.json
-    useAnnotation: false
-    tuner:
-      builtinTunerName: CUHKPrototypeTuner
-    trial:
-      command: python ./bin/train_elmo.py --train_prefix=./data/one_billion/1-billion-word-language-modeling-benchmark-r13output/training-monolingual.tokenized.shuffled/* --vocab_file ./data/vocab-2016-09-10.txt --save_dir ./save_output
-      codeDir: .
-    
-      # We assume there is 8 gpu(s)
-      gpuNum: 8
-    EOF
-    ```
-
-4. Update the following files for applying configuration from tuner and reporting performance metrics
-
-| File  | Download |
-| ------------- | ------------- |
-| bilm/training.py | [Link](https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/training.py) |
-| bin/train_elmo.py | [Link](https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elmo.py) |
-
-
+6. The tuning is ready to [start](#start-tuning) 
 
 ### For mBART 
 
-1. Clone the source code of mbart from follow link.
+1. Create a working directory "mbart"
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/translation_multi_simple_epoch.py
+   mkdir mbart && cd mbart
    ```
 
-2. Create file  "search_space.json" to define the search space of hyperparmaeters and hardware parameters. Execute: 
+2. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
 
    ```bash
    cat << EOF > search_space.json
@@ -111,7 +113,7 @@
    EOF
    ```
 
-3. Create file  "config.yml" with following content. Execute:
+3. Create file  ``config.yml`` with following content. Execute:
 
    ```bash
    cat << EOF > config.yml
@@ -130,17 +132,21 @@
    trial:
      command: ./run_mbart.sh
      codeDir: .
-   
-     # We assume there is 8 gpu(s)
-     gpuNum: 8
    EOF
+   
+   ```
+   
+4. Download the modified source code of mBart:
+   ```bash
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/translation_multi_simple_epoch.py
    ```
 
-4. Create script "run_mbart.sh" to run
+4. Create script``run_mbart.sh`` to run
 
    ```bash
+   cat << EOF > run_mbart.sh
    data_dir=./data/processed
-   save_dir=./save_dir
+   save_dir=./output_model
    user_dir=./
    langs=ar_AR,cs_CZ,de_DE,en_XX,es_XX,et_EE,fi_FI,fr_XX,gu_IN,hi_IN,it_IT,ja_XX,kk_KZ,ko_KR,lt_LT,lv_LV,my_MM,ne_NP,nl_XX,ro_RO,ru_RU,si_LK,tr_TR,vi_VN,zh_CN
    
@@ -164,9 +170,10 @@
        --save-interval-updates 8000 --keep-interval-updates 10 --no-epoch-checkpoints --seed 222 --log-format simple \
        --log-interval 2 --reset-optimizer --reset-meters --reset-dataloader --reset-lr-scheduler  \
        --langs $langs --layernorm-embedding  --ddp-backend no_c10d --save-dir $save_dir
+   EOF
    ```
+6. The tuning is ready to [start](#start-tuning) 
 
-   
 
 ### For MASS 
 
@@ -176,13 +183,13 @@
    git clone https://github.com/microsoft/MASS.git
    ```
 
-2. Go to the working dir
+2. Go to the working direcotry
 
    ```bash
    cd MASS/MASS-supNMT
    ```
 
-3. Create file  "search_space.json" to define the search space of hyperparmaeters and hardware parameters. Execute: 
+3. Create file  "search_space.json" to define the search space of hyperparameters and hardware parameters. Execute: 
 
    ```bash
    cat << EOF > search_space.json
@@ -201,6 +208,7 @@
        "allow_tf32":{"_type":"choice","_value":[0,1]}
    }
    EOF
+   
    ```
 
 4. Create file  "config.yml" with following content. Execute:
@@ -222,29 +230,27 @@
    trial:
      command: ./run_mass_enzh.sh
      codeDir: .
-   
-     # We assume there is 8 gpu(s)
-     gpuNum: 8
    EOF
    ```
+   
+5. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
+```bash
+    wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+```
 
-5. Update the following files for applying configuration from tuner and reporting performance metrics
-
-| File                                | Download                                                     |
-| ----------------------------------- | ------------------------------------------------------------ |
-| MASS-supNMT/mass/xmasked_seq2seq.py | [Link](https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/xmasked_seq2seq.py) |
+6. The tuning is ready to [start](#start-tuning) 
 
 
-
-## Start training
+## Start tuning 
 
 1. Inside the working directory, execute 
-    ```bash
-    nnictl create --config ./config.yml -p 8080
-    ```
+
+   ```bash
+   nnictl create --config ./config.yml -p 8080
+   ```
 
 2. If successfully start the tuner with training program, you should see the following message in the console:
-Your experiment id `egchD4qy` is shown. Please note it down for [pausing the tuning](#Stop And Resume tuning) later on. 
+   Your experiment id `egchD4qy` is shown. Please note it down for [pausing the tuning](#stop-and-resume-tuning) later on. 
 
     ```log
     INFO: Starting restful server...
@@ -272,7 +278,7 @@ Your experiment id `egchD4qy` is shown. Please note it down for [pausing the tun
     -----------------------------------------------------------------------
     ```
 
-4. To check Tuning Process From Web UI, open a browser and use the URL given by NNI:
+3. To check Tuning Process From Web UI, open a browser and use the URL given by NNI:
 
 ```
 The Web UI urls are: [Your IP]:8080
@@ -333,5 +339,26 @@ nnictl resume egchD4qy # egchD4qy is the experiment id provided by the tuner whe
 ```
 
 ## Get the trained model
+<!--
+Each trial's ta will be store in the path ``{save_dir}/{trial_id}``. For example, the checkpoint file of trial with id ``J6VEx`` for ELMO will be stored in ``{SOME_PATH}/bilm-tf/save_output/J6VEx``.
+--> 
+1. The tuner execute the user training program multiple times (we call it `trial`) with different configurations.
+There are multiple trained models generated throughout the whole tuning. 
 
-Each trial's training checkpoint will be store in the path ``{save_dir}/{trial_id}``. For example, the checkpoint file of trial with id ``J6VEx`` for ELMO will be stored in ``{SOME_PATH}/bilm-tf/save_output/J6VEx``.
+2. To obtain the trained model with highest accuracy, go to the `Overview Page` and check the top 10 trials with best accurracy 
+<img src="https://lh3.googleusercontent.com/-nUV6DIuojdw/X1r3Fzve2TI/AAAAAAAAAdU/SYO259Bld24Lzhvsn7UfJu8XT7NGnpOBQCK8BGAsYHg/s0/2020-09-10.png"/>
+
+3. Each row of the table represent different trials. The default metrics is the accuracy. Trial with ID 'DKqsP' is the best in this example 
+
+4. The directory of the trained model is specified in the user training program. Here are the output directories of training programs:
+   
+    | Training program | output directory |
+    | ---------------- | ---------------- |
+    | ELMO | {working_dir}/output_model |
+    | mBart | {working_dir}/output_model |
+    | MASS | {working_dir}/checkpoints/mass/pretraining |
+
+5. With output directory and trial ID (DKqsP), you can check the trained model by going to directory 
+```
+    {output directory}/DKqsP 
+```
