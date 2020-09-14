@@ -73,8 +73,6 @@ def main(args):
     final_perplexity = train(options, data, n_gpus, tf_save_dir, tf_log_dir,optimizer,config)  
     end = time.time()
     spent_time = (end - start) / 3600.0
-    import random
-    final_perplexity=float('inf') if random.random() < 0.75 else final_perplexity
     report_dict = {'runtime':spent_time,'default':final_perplexity}   
     nni.report_final_result(report_dict)
   ### NNI modification ###
