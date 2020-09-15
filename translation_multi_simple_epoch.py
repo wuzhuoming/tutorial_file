@@ -100,7 +100,6 @@ class TranslationMultiSimpleEpochTask(LegacyFairseqTask):
         self.s_time = 0.0 
         self.e_time = 0.0 
         self.spent_time = 0.0
-        self.valid_lang_pair = args.valid_lang_pairs[0]
         ## nni modification
 
 
