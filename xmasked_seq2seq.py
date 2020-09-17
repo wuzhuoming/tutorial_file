@@ -28,7 +28,6 @@ from fairseq.tasks.semisupervised_translation import parse_lambda_config
 from .masked_language_pair_dataset import MaskedLanguagePairDataset
 from .noisy_language_pair_dataset import NoisyLanguagePairDataset
 
-import nni  ## NNI modification
 import time ## NNI modification
 
 
@@ -94,6 +93,18 @@ class XMassTranslationTask(FairseqTask):
         parser.add_argument('--reload-checkpoint', type=str, default=None,
                             help="pre-trained checkpoint")
 
+        #add hardware parameters
+        parser.add_argument('--inter', type=int, default=1,
+                            help="inter_op_parallelism_threads")
+        parser.add_argument('--intra', type=int, default=1,
+                            help="intra_op_parallelism_threads")
+        parser.add_argument('--benchmark', type=int, default=0,
+                            help="enable benchmark")
+        parser.add_argument('--allow_tf32', type=int, default=0,
+                            help="enable allow_tf32")
+        parser.add_argument('--output_dir', type=str, default=None,
+                            help="same as save_dir")
+
     def __init__(self, args, dicts, training):
         super().__init__(args)
         self.dicts = dicts
@@ -106,7 +117,8 @@ class XMassTranslationTask(FairseqTask):
         self.s_time = 0.0 
         self.e_time = 0.0 
         self.spent_time = 0.0
-        self.valid_lang_pair = args.valid_lang_pairs[0]
+        self.valid_lang_pairs = args.valid_lang_pairs
+        self.save_dir = args.output_dir
         ### NNI modification ###
         
 
@@ -122,37 +134,11 @@ class XMassTranslationTask(FairseqTask):
     def setup_task(cls, args, **kwargs):
         dicts, training = cls.prepare(args, **kwargs)
 
-
-        ### NNI modification ###
-        params = {
-          'clip-norm':10,
-          'lr': 32,
-          'dropout':0.1,
-          'relu-dropout':0.1,
-          'attention-dropout':0.1,
-          'optimizer':"adam",
-          'inter_op_parallelism_threads':1,
-          'intra_op_parallelism_threads':2,
-          'benchmark':0,
-          'allow_tf32':0
-        }  
-        tuned_params = nni.get_next_parameter() 
-        params.update(tuned_params) 
-        t_id = nni.get_trial_id()
-        args.save_dir = args.save_dir + "/" + t_id
-        # args.max_epoch = 1
-        args.clip_norm = params['clip-norm']
-        args.lr = [params['lr']]
-        args.attention_dropout = params['attention-dropout']
-        args.dropout = params['dropout']
-        args.activation_dropout = params['relu-dropout']
-        args.optimizer = params['optimizer']
-        print(args)
         ## hardware parameter
-        torch.set_num_threads(int(params['intra_op_parallelism_threads']))
-        torch.set_num_interop_threads(int(params['inter_op_parallelism_threads']))
-        torch.backends.cudnn.benchmark = bool(params['benchmark'])
-        torch.backends.cudnn.allow_tf32 = bool(params['allow_tf32'])
+        torch.set_num_threads(int(args.intra))
+        torch.set_num_interop_threads(int(args.inter))
+        torch.backends.cudnn.benchmark = bool(args.benchmark)
+        torch.backends.cudnn.allow_tf32 = bool(args.allow_tf32)
         ### NNI modification ###
 
         return cls(args, dicts, training)
@@ -532,12 +518,13 @@ class XMassTranslationTask(FairseqTask):
         flat_logging_output['nsentences'] = sum_over_languages('nsentences')
         flat_logging_output['ntokens'] = sum_over_languages('ntokens')
 
-        tap = self.valid_lang_pair + ":loss"
-        if tap in flat_logging_output.keys():
+        if isinstance(self.valid_lang_pairs,list):
+            self.valid_lang_pairs = self.valid_lang_pairs[0]
+        if self.valid_lang_pairs+':loss' in flat_logging_output.keys():
             self.spent_time = self.spent_time + (self.e_time - self.s_time) / 3600.0
             if self.cur_epoch >= self.max_epoch:
-                report_dict = {'runtime':self.spent_time,'default':flat_logging_output[tap]}   
-                nni.report_final_result(report_dict)
+                temp_file = open(self.save_dir+"/runtime.txt", 'w+')
+                print(self.spent_time,file=temp_file)
             else:
                 self.cur_epoch = self.cur_epoch + 1
         return flat_logging_output
