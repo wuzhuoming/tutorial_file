@@ -1,6 +1,7 @@
 import os
 import nni
 import time
+import torch
 
 params = {
   'dropout':0.0,
@@ -33,6 +34,7 @@ tgt = "ja_XX"
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
+torch.cuda.empty_cache()## clear cuda cache
 s_time = time.time()
 os.system("fairseq-train %s \
   --user-dir %s \
@@ -68,6 +70,8 @@ os.system("fairseq-train %s \
     int(params['inter_op_parallelism_threads']),int(params['intra_op_parallelism_threads']),int(params['benchmark']),int(params['allow_tf32'])))
 e_time = time.time()
 
+torch.cuda.empty_cache() ## clear cuda cache
+
 spent_time = (e_time - s_time) / 3600.0
 print(spent_time)
 
@@ -98,6 +102,8 @@ os.system("fairseq-generate \
   langs,lang_pairs,
   spm,
   save_dir))
+
+torch.cuda.empty_cache()## clear cuda cache
 
 target_file = "path_2_target_file"
 result_file = "path_2_result_file"
