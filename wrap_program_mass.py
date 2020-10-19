@@ -1,5 +1,6 @@
 import os
 import nni
+import torch
 
 params = {
           'clip-norm':10,
@@ -37,6 +38,7 @@ word_mask=0.3
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
+torch.cuda.empty_cache() ## clear cuda cache
 
 os.system("fairseq-train %s --user-dir %s --task xmasked_seq2seq \
 	--source-langs en,zh \
@@ -83,6 +85,7 @@ f = open(save_dir+ "/runtime.txt")
 spent_time = float(f.readline())
 print(spent_time)
 
+torch.cuda.empty_cache() ## clear cuda cache
 
 ckpt_path = save_dir+"/checkpoint_best.pt"
 gen_subset = "valid"
@@ -107,6 +110,7 @@ os.system("fairseq-generate \
   gen_subset,
   result_file))
 
+torch.cuda.empty_cache() ## clear cuda cache
 
 bsf = os.popen("cat %s | grep -P \"^D\" | cut -f 3- | sacrebleu -b %s" % (result_file,target_file))
 bs = float(bsf.readline())
