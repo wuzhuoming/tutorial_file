@@ -78,7 +78,7 @@ target_file = "path_2_target_file"
 
 generate_cmd = "fairseq-generate --path=%s %s --user-dir %s -s zh -t en --langs en,zh --source-langs zh --target-langs en --mt_steps zh-en --gen-subset %s --task xmasked_seq2seq --bpe subword_nmt --beam 5 --remove-bpe"%(ckpt_path,data_dir,user_dir,gen_subset)
 
-with open(file_name, 'w') as outf:
+with open(result_file, 'w') as outf:
   generate_process = subprocess.Popen(shlex.split(generate_cmd),stdout=outf,shell=False)
 generate_pid = generate_process.pid
 print("generate process start,process ID is %d" % generate_pid) 
