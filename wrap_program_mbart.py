@@ -30,7 +30,7 @@ tuned_params = nni.get_next_parameter()
 params.update(tuned_params) 
 t_id = nni.get_trial_id()
 
-
+### all file path in this program should use absolute path!
 path_2_data="/research/d3/zmwu/model/mbart_company_version/post_process/en-zh_100/"
 lang_pairs="en_XX-zh_CN,zh_CN-en_XX"
 lang_list="/research/d3/zmwu/model/mbart_company_version/lang_list"
@@ -61,7 +61,7 @@ e_time = time.time()
 spent_time = (e_time - s_time) / 3600.0
 print(spent_time)
 
-
+### all file path in this program should use absolute path!
 ckpt_path = save_dir+"/checkpoint_last.pt"
 gen_subset = "test"
 spm = "/research/d3/zmwu/model/mbart/mbart.cc25/sentence.bpe.model"
