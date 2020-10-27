@@ -72,7 +72,7 @@ spm = "/research/d3/zmwu/model/mbart/mbart.cc25/sentence.bpe.model"
 generate_cmd = "fairseq-generate --path=%s %s --user-dir %s --task translation_multi_simple_epoch_nni --encoder-langtok 'src' --decoder-langtok --gen-subset %s -s %s -t %s --lang-dict %s --lang-pairs %s --bpe 'sentencepiece' --empty-cache-freq 1 --sentencepiece-model %s --scoring 'sacrebleu' --fp16 --max-sentences 128 --results-path %s"%(ckpt_path,path_2_data,user_dir,gen_subset,"en_XX","zh_CN",lang_list,lang_pairs,spm,save_dir)
 
 
-generate_process = subprocess.Popen(shlex.split(generate_cmd),stdout=outf,shell=False)
+generate_process = subprocess.Popen(shlex.split(generate_cmd),shell=False)
 generate_pid = generate_process.pid
 logging.info("generate process start,process ID is %d" % generate_pid) 
 generate_process.wait()
