@@ -40,7 +40,6 @@
    {
        "epoch":{"_type": "uniform", "_value": [5, 50]},
        "batch_size":{"_type": "uniform", "_value": [64, 512]},
-       "optimizer":{"_type":"choice","_value":["Adag","Adam","Rmsp"]},
        
        "inter_op_parallelism_threads":{"_type":"choice","_value":[1,2,3,4]},
        "intra_op_parallelism_threads":{"_type":"choice","_value":[2,4,6,8,10,12]},
@@ -84,8 +83,8 @@
    
 5. Replace `bilm/training.py` and `train_elmo.py` to apply configuration from tuner and report performance metrics
 ```bash
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/training.py -O bilm/training.py && \
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/train_elmo.py -O bin/train_elmo.py 
+wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/training.py -O bilm/training.py && \
+wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/train_elmo.py -O bin/train_elmo.py 
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
