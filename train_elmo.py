@@ -82,6 +82,9 @@ def main(args):
     if not os.path.exists(tf_save_dir) :
       os.makedirs(tf_save_dir)
     
+    if params['tf_gpu_thread_mode'] in ["global", "gpu_private", "gpu_shared"]:
+    os.environ['TF_GPU_THREAD_MODE'] = params['tf_gpu_thread_mode']
+    
     start = time.time()   
     final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config)  
     end = time.time()
