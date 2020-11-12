@@ -102,9 +102,9 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/train_e
    ```bash
    mkdir user_dir
    
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/__init__.py -O user_dir/__init__.py
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/__init__.py -O user_dir/__init__.py
    
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/translation_multi_simple_epoch_nni.py -O user_dir/translation_multi_simple_epoch_nni.py
    ```
    
 3. Create file  ``search_space.json`` to define the search space of hyperparameters and hardware parameters. Execute: 
@@ -157,7 +157,7 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/train_e
 5. Download the tuner program "wrap_program_mbart.py"
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/wrap_program_mbart.py 
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/wrap_program_mbart.py 
    ```
 
 6. The tuning is ready to [start](#start-tuning).
@@ -228,12 +228,12 @@ wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/train_e
 5. Download file "wrap_program_mass.py" in the same directory of "config.yml".
 
    ```bash
-   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/wrap_program_mass.py
+   wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/wrap_program_mass.py
    ```
 
 6. Replace `mass/xmasked_seq2seq.py` to apply configuration from tuner and report performance metrics
 ```bash
-wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/master/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
+wget https://raw.githubusercontent.com/wuzhuoming/tutorial_file/fix_elmo/xmasked_seq2seq.py -O mass/xmasked_seq2seq.py
 ```
 
 6. The tuning is ready to [start](#start-tuning) 
