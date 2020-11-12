@@ -672,7 +672,7 @@ def _get_feed_dict_from_X(X, start, end, model, char_inputs, bidirectional):
     return feed_dict
 
 
-def train(options, data, n_gpus, tf_save_dir, tf_log_dir,session_config,
+def train(options, data, n_gpus, gpu_index, tf_save_dir, tf_log_dir,session_config,
           restart_ckpt_file=None):
 
     # not restarting so save the options
@@ -698,9 +698,9 @@ def train(options, data, n_gpus, tf_save_dir, tf_log_dir,session_config,
             'train_perplexity', [],
             initializer=tf.constant_initializer(0.0), trainable=False)
         norm_summaries = []
-        for k in range(n_gpus):
+        for k in gpu_index:
             with tf.device('/gpu:%d' % k):
-                with tf.variable_scope('lm', reuse=k > 0):
+                with tf.variable_scope('lm', reuse=tf.AUTO_REUSE):
                     # calculate the loss for one model replica and get
                     #   lstm states
                     model = LanguageModel(options, True)
