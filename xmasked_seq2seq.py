@@ -28,7 +28,6 @@ from fairseq.tasks.semisupervised_translation import parse_lambda_config
 from .masked_language_pair_dataset import MaskedLanguagePairDataset
 from .noisy_language_pair_dataset import NoisyLanguagePairDataset
 
-import time ## NNI modification
 
 
 def _get_mass_dataset_key(lang_pair):
@@ -107,19 +106,11 @@ class XMassTranslationTask(FairseqTask):
 
     def __init__(self, args, dicts, training):
         super().__init__(args)
+        print("this is print")
+        print(self.args.max_source_positions)
         self.dicts = dicts
         self.training = training
         self.langs = list(dicts.keys())
-
-        ### NNI modification ###
-        self.cur_epoch = 1   
-        self.max_epoch = args.max_epoch 
-        self.s_time = 0.0 
-        self.e_time = 0.0 
-        self.spent_time = 0.0
-        self.valid_lang_pairs = args.valid_lang_pairs
-        self.save_dir = args.output_dir
-        ### NNI modification ###
         
 
     @classmethod
@@ -403,7 +394,6 @@ class XMassTranslationTask(FairseqTask):
         return model
 
     def train_step(self, sample, model, criterion, optimizer, ignore_grad=False):
-        self.s_time = time.time() #add
         model.train()
         agg_loss, agg_sample_size, agg_logging_output = 0., 0., {}
 
@@ -458,7 +448,7 @@ class XMassTranslationTask(FairseqTask):
                 agg_loss += loss.data.item()
                 agg_sample_size += sample_size
                 agg_logging_output[lang_pair] = logging_output
-        self.e_time = time.time() # add
+
 
         return agg_loss, agg_sample_size, agg_logging_output
 
@@ -518,15 +508,6 @@ class XMassTranslationTask(FairseqTask):
         flat_logging_output['nsentences'] = sum_over_languages('nsentences')
         flat_logging_output['ntokens'] = sum_over_languages('ntokens')
 
-        if isinstance(self.valid_lang_pairs,list):
-            self.valid_lang_pairs = self.valid_lang_pairs[0]
-        if self.valid_lang_pairs+':loss' in flat_logging_output.keys():
-            self.spent_time = self.spent_time + (self.e_time - self.s_time) / 3600.0
-            if self.cur_epoch >= self.max_epoch:
-                temp_file = open(self.save_dir+"/runtime.txt", 'w+')
-                print(self.spent_time,file=temp_file)
-            else:
-                self.cur_epoch = self.cur_epoch + 1
         return flat_logging_output
 
     def max_positions(self):
