@@ -10,6 +10,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+
 import nni  # NNI modification
 import time  # NNI modification
 import tensorflow as tf # NNI modification
@@ -21,10 +22,8 @@ def main(args):
     # define the options
     batch_size = int(params['batch_size'])  # batch size for each GPU
     
-    if "CUDA_VISIBLE_DEVICES" in os.environ:
-      n_gpus = len(os.environ["CUDA_VISIBLE_DEVICES"].split(','))
-    else:
-      n_gpus = 1
+    gpus_index_list = list(map(int,os.environ["CUDA_VISIBLE_DEVICES"].split(',')))
+    n_gpus = len(os.environ["CUDA_VISIBLE_DEVICES"].split(','))
 
     # number of tokens in training data (this for 1B Word Benchmark)
     n_train_tokens = 768648884
@@ -84,7 +83,7 @@ def main(args):
       os.makedirs(tf_save_dir)
     
     start = time.time()   
-    final_perplexity = train(options, data, n_gpus, tf_save_dir, tf_log_dir,sess_config)  
+    final_perplexity = train(options, data, n_gpus,gpus_index_list,tf_save_dir, tf_log_dir,sess_config)  
     end = time.time()
     spent_time = (end - start) / 3600.0
     report_dict = {'runtime':spent_time,'default':final_perplexity}   
