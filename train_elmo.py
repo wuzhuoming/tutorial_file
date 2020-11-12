@@ -91,7 +91,6 @@ def main(args):
     spent_time = (end - start) / 3600.0
     report_dict = {'runtime':spent_time,'default':final_perplexity}   
     nni.report_final_result(report_dict)
-    # train(options, data, n_gpus, tf_save_dir, tf_log_dir)
 
 
 if __name__ == '__main__':
